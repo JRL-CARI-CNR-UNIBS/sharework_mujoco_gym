@@ -10,7 +10,8 @@
          qualunque punto di vista (importante se questi render finiscono
          in dataset per LeRobot/ACT). -->
     <headlight ambient="0.3 0.3 0.3" diffuse="0.2 0.2 0.2" specular="0 0 0"/>
-    <global offwidth="1280" offheight="960"/>
+    <global offwidth="1280" offheight="960" />
+    
   </visual>
 
   <asset>
@@ -18,6 +19,13 @@
     <material name="beech" rgba="0.952941 0.694118 0.392157 1"/>
     <material name="dark_grey" rgba="0.1 0.1 0.1 1"/>
     <material name="white" rgba="1 1 1 1"/>
+        <texture name="skybox"
+             type="skybox"
+             builtin="gradient"
+             rgb1="0.95 0.95 0.95"
+             rgb2="0.65 0.7 0.75"
+             width="512"
+             height="512"/>
   </asset>
 
   <worldbody>
@@ -25,13 +33,16 @@
          luminosi (directional=false ma diffuse/ambient alti, distribuiti
          su tutta l'area della cella invece di 1-2 punti) + una componente
          ambient alta per schiarire le zone in ombra -->
-    <light pos="-0.6  0.8 2.6" dir="0 0 -1" diffuse="0.9 0.9 0.85" ambient="0.35 0.35 0.35" specular="0.15 0.15 0.15" castshadow="true"/>
-    <light pos="-0.6 -0.8 2.6" dir="0 0 -1" diffuse="0.9 0.9 0.85" ambient="0.35 0.35 0.35" specular="0.15 0.15 0.15" castshadow="true"/>
-    <light pos=" 0.3  0.8 2.6" dir="0 0 -1" diffuse="0.9 0.9 0.85" ambient="0.35 0.35 0.35" specular="0.15 0.15 0.15" castshadow="false"/>
-    <light pos=" 0.3 -0.8 2.6" dir="0 0 -1" diffuse="0.9 0.9 0.85" ambient="0.35 0.35 0.35" specular="0.15 0.15 0.15" castshadow="false"/>
+    <light pos="1.5  0.0 3.6" dir="0 0 -1" diffuse="0.9 0.9 0.85" ambient="0.35 0.35 0.35" specular="0.15 0.15 0.15" castshadow="true"/>
+    <light pos="1.5  3.0 3.6" dir="0 0 -1" diffuse="0.9 0.9 0.85" ambient="0.35 0.35 0.35" specular="0.15 0.15 0.15" castshadow="true"/>
+    <light pos="1.5  -3.0 3.6" dir="0 0 -1" diffuse="0.9 0.9 0.85" ambient="0.35 0.35 0.35" specular="0.15 0.15 0.15" castshadow="true"/>
+    <!--
+    <light pos="-0.6 -0.8 3.6" dir="0 0 -1" diffuse="0.9 0.9 0.85" ambient="0.35 0.35 0.35" specular="0.15 0.15 0.15" castshadow="true"/>
+    <light pos=" 0.3  0.8 3.6" dir="0 0 -1" diffuse="0.9 0.9 0.85" ambient="0.35 0.35 0.35" specular="0.15 0.15 0.15" castshadow="false"/>
+    <light pos=" 0.3 -0.8 3.6" dir="0 0 -1" diffuse="0.9 0.9 0.85" ambient="0.35 0.35 0.35" specular="0.15 0.15 0.15" castshadow="false"/>
+    -->
     <light pos="-1.2  0.0 1.6" dir="1 0 0"  diffuse="0.35 0.35 0.35" ambient="0.25 0.25 0.25" specular="0 0 0" castshadow="false"/>
-
-
+    
     <body name="cell_static" pos="0 0 0">
 
       <!-- portal: colonne + travi -->
