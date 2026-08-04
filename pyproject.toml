@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sharework-mujoco"
+version = "0.1.0"
+description = "Modello MuJoCo della cella sharework (UR10e + Robotiq 2F-85 + 3 RealSense), utilizzabile standalone, come ambiente Gymnasium, o con LeRobot (ACT/VLA)."
+requires-python = ">=3.10"
+dependencies = [
+    "mujoco>=3.1.0",
+    "numpy",
+    "gymnasium>=0.29",
+]
+
+[project.optional-dependencies]
+sac = ["stable-baselines3>=2.0"]
+lerobot = ["lerobot"]
+live-view = ["opencv-python"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+sharework_mujoco = ["assets/**/*"]

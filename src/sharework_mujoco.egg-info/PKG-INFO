@@ -1,0 +1,14 @@
+Metadata-Version: 2.4
+Name: sharework-mujoco
+Version: 0.1.0
+Summary: Modello MuJoCo della cella sharework (UR10e + Robotiq 2F-85 + 3 RealSense), utilizzabile standalone, come ambiente Gymnasium, o con LeRobot (ACT/VLA).
+Requires-Python: >=3.10
+Requires-Dist: mujoco>=3.1.0
+Requires-Dist: numpy
+Requires-Dist: gymnasium>=0.29
+Provides-Extra: sac
+Requires-Dist: stable-baselines3>=2.0; extra == "sac"
+Provides-Extra: lerobot
+Requires-Dist: lerobot; extra == "lerobot"
+Provides-Extra: live-view
+Requires-Dist: opencv-python; extra == "live-view"

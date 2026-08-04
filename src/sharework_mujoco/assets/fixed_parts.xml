@@ -1,0 +1,80 @@
+<mujoco model="sharework_fixed_parts">
+  <compiler angle="radian"/>
+
+  <visual>
+    <!-- headlight = luce agganciata alla camera che sta renderizzando: va
+         bene per il viewer interattivo ma non e' realistico per le camere
+         fisse (rs1/rs2/wrist), che nella realta' non si portano dietro una
+         luce propria. La spengo e illumino la scena con luci vere e
+         proprie, fisse nell'ambiente, cosi' il rendering e' coerente da
+         qualunque punto di vista (importante se questi render finiscono
+         in dataset per LeRobot/ACT). -->
+    <headlight ambient="0.3 0.3 0.3" diffuse="0.2 0.2 0.2" specular="0 0 0"/>
+    <global offwidth="1280" offheight="960"/>
+  </visual>
+
+  <asset>
+    <material name="grey"  rgba="0.517647 0.529412 0.537255 1"/>
+    <material name="beech" rgba="0.952941 0.694118 0.392157 1"/>
+    <material name="dark_grey" rgba="0.1 0.1 0.1 1"/>
+    <material name="white" rgba="1 1 1 1"/>
+  </asset>
+
+  <worldbody>
+    <!-- illuminazione "da laboratorio": pannelli a soffitto diffusi e
+         luminosi (directional=false ma diffuse/ambient alti, distribuiti
+         su tutta l'area della cella invece di 1-2 punti) + una componente
+         ambient alta per schiarire le zone in ombra -->
+    <light pos="-0.6  0.8 2.6" dir="0 0 -1" diffuse="0.9 0.9 0.85" ambient="0.35 0.35 0.35" specular="0.15 0.15 0.15" castshadow="true"/>
+    <light pos="-0.6 -0.8 2.6" dir="0 0 -1" diffuse="0.9 0.9 0.85" ambient="0.35 0.35 0.35" specular="0.15 0.15 0.15" castshadow="true"/>
+    <light pos=" 0.3  0.8 2.6" dir="0 0 -1" diffuse="0.9 0.9 0.85" ambient="0.35 0.35 0.35" specular="0.15 0.15 0.15" castshadow="false"/>
+    <light pos=" 0.3 -0.8 2.6" dir="0 0 -1" diffuse="0.9 0.9 0.85" ambient="0.35 0.35 0.35" specular="0.15 0.15 0.15" castshadow="false"/>
+    <light pos="-1.2  0.0 1.6" dir="1 0 0"  diffuse="0.35 0.35 0.35" ambient="0.25 0.25 0.25" specular="0 0 0" castshadow="false"/>
+
+
+    <body name="cell_static" pos="0 0 0">
+
+      <!-- portal: colonne + travi -->
+      <geom name="right_column" type="box" pos="-0.290 1.060 1.500" size="0.290 0.060 1.500" material="grey"/>
+      <geom name="left_column"  type="box" pos="-0.290 -1.060 1.500" size="0.290 0.060 1.500" material="grey"/>
+      <geom name="lower_beam"   type="box" pos="-0.290 0 0.847" size="0.290 1.000 0.060" material="grey"/>
+      <geom name="upper_beam"   type="box" pos="-0.290 0 2.268" size="0.290 1.000 0.060" material="grey"/>
+
+      <!-- guida fissa e cursore (track_joint e' fixed: guida non usata) -->
+      <geom name="guide_fixed" type="box" pos="-0.255 0 2.138" size="0.140 1.000 0.070" material="grey"/>
+      <geom name="cursor"      type="box" pos="-0.255 0.061 2.063" size="0.140 0.140 0.005" material="dark_grey"/>
+
+      <!-- punto di aggancio del braccio: frame del link "cursor" (xacro),
+           con la rotazione robot_origin_roll=pi, robot_origin_yaw=pi/2 di sharework_cell_urdf.xacro
+           gia' composta in un quaternion (w x y z) -->
+      <!-- rotazione base robot: roll=pi, yaw=pi/2+pi (yaw ruotato di 180
+           gradi attorno all'asse verticale reale del mount rispetto alla
+           versione precedente) -->
+      <site name="ur10e_mount" pos="-0.255 0.061 2.058" quat="0 -0.7071068 0.7071068 0" size="0.01" rgba="1 0 0 1"/>
+
+      <!-- tavolo + rotaia -->
+      <geom name="table" type="box" pos="0.300 0 0.875" size="0.300 1.000 0.020" material="beech"/>
+      <geom name="rail"  type="box" pos="0.300 0 0.955" size="0.180 1.612 0.060" material="grey"/>
+
+      <!-- parete + quadro elettrico -->
+      <geom name="wall"             type="box" pos="-1.030 0 1.500" size="0.050 2.120 1.500" material="white"/>
+      <geom name="electric_cabinet" type="box" pos="-0.780 0.650 1.000" size="0.200 0.350 1.000" material="white"/>
+
+      <!-- pavimento -->
+      <geom name="floor" type="box" pos="1.040 0 -0.005" size="3.000 3.000 0.405" material="white" rgba="0.75 0.75 0.75 1"/>
+
+      <!-- oggetti generici a muro (armadio elettrico secondario, monitor) -->
+      <geom name="thing_on_wall"   type="box" pos="-0.2 -0.95 1.35" size="0.25 0.05 0.15" material="grey"/>
+      <geom name="computer_screen" type="box" pos="0.15 1.2 1.5"  size="0.10 0.25 0.25" material="grey"/>
+
+      <!-- frame statici delle telecamere (world_to_cam_*, dai tuoi static_transform_publisher) -->
+      <site name="rs1_camera_link_calibration_check" pos="0.845205 1.15052 2.57347"
+            quat="0.654969 0.292609 0.252083 -0.649499" size="0.015" rgba="0 1 0 1"/>
+      <site name="rs2_camera_link_calibration_check" pos="0.649999 -1.16584 2.63428"
+            quat="0.658381 -0.294127 0.265496 0.63995" size="0.015" rgba="0 1 0 1"/>
+      <site name="zed_camera_link_calibration_check" pos="0.0937849 -0.929844 2.30862"
+            quat="0.829537 0.185429 0.512749 0.120719" size="0.015" rgba="0 0.6 1 1"/>
+
+    </body>
+  </worldbody>
+</mujoco>

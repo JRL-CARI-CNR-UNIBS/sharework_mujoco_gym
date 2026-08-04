@@ -1,0 +1,12 @@
+mujoco>=3.1.0
+numpy
+gymnasium>=0.29
+
+[lerobot]
+lerobot
+
+[live-view]
+opencv-python
+
+[sac]
+stable-baselines3>=2.0
