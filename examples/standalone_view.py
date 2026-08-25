@@ -47,6 +47,26 @@ def main():
     args = parser.parse_args()
 
     sim = SharedworkCellSim()
+
+    model, data = sim.model, sim.data
+    import mujoco
+    tcp_id = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_SITE, "ur10e_attachment_site")
+    tcp_pos = data.site_xpos[tcp_id]
+    tcp_rot = data.site_xmat[tcp_id].reshape(3, 3)
+
+    import numpy as np
+
+    target = np.array([-0.03358524, -0.113, 1.3829712])  # sopra il tavolo, vedi fixed_parts.xml
+    R_ref = np.array([
+        [-2.05103490e-10, -1.00000000e+00, -2.05103533e-10],
+        [-1.00000000e+00, 2.05103490e-10, 2.05103533e-10],
+        [-2.05103533e-10, 2.05103533e-10, -1.00000000e+00]
+    ])
+    R_err = tcp_rot.T @ R_ref
+    angle = np.arccos(np.clip((np.trace(R_err) - 1) / 2, -1.0, 1.0))
+    dist = np.linalg.norm(tcp_pos - target)
+    print(f"tcp_pos: {tcp_pos},\n tcp_rot: {tcp_rot}")
+    print(f"angle: {angle}, dist: {dist}")
     print(f"Caricato. nbody={sim.model.nbody} njnt={sim.model.njnt} nu={sim.model.nu}")
 
     if args.wrist_cam:
@@ -62,6 +82,22 @@ def main():
     import mujoco.viewer
     print("Apro il viewer... (chiudi la finestra per uscire)")
     mujoco.viewer.launch(sim.model, sim.data)
+
+    tcp_id = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_SITE, "ur10e_attachment_site")
+    tcp_pos = data.site_xpos[tcp_id]
+    tcp_rot = data.site_xmat[tcp_id].reshape(3, 3)
+
+    import time
+    time.sleep(10)
+    tcp_pos = data.site_xpos[tcp_id]
+    tcp_rot = data.site_xmat[tcp_id].reshape(3, 3)
+
+    R_err = tcp_rot.T @ R_ref
+    angle = np.arccos(np.clip((np.trace(R_err) - 1) / 2, -1.0, 1.0))
+    dist = np.linalg.norm(tcp_pos - target)
+    print(f"tcp_pos: {tcp_pos},\n tcp_rot: {tcp_rot}")
+    print(f"angle: {angle}, dist: {dist}")
+    print(f"Caricato. nbody={sim.model.nbody} njnt={sim.model.njnt} nu={sim.model.nu}")
 
 
 if __name__ == "__main__":

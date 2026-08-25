@@ -62,15 +62,62 @@ Azione: `Box(-1, 1, shape=(7,))`, normalizzata; internamente viene
 rimappata al `ctrlrange` reale di ciascun attuatore (letto dal modello, non
 hardcoded — il gripper ad es. e' `[0, 255]`).
 
-**Reward**: di default sempre `0.0` — non esiste un task predefinito.
-Passa una funzione tua:
+### Reward
+
+Di default la reward e' sempre `0.0` — non esiste un task predefinito, va
+definito da chi usa l'ambiente passando una `reward_fn`:
 
 ```python
-env.unwrapped._reward_fn = la_tua_funzione_di_reward
+Callable[[SharedworkCellEnv], float]
 ```
 
-Vedi `examples/train_sac.py` per un esempio completo (con un reward di
-reaching puramente dimostrativo, da sostituire).
+Viene chiamata ad ogni `step()`, DOPO che la fisica e' avanzata, con
+l'ambiente stesso come unico argomento. Dentro puoi leggere qualunque stato
+via `env.sim` (istanza di `SharedworkCellSim`, vedi [sim.py](src/sharework_mujoco/sim.py)):
+
+- `env.sim.data` / `env.sim.model` — mjData/mjModel MuJoCo grezzi (posizioni
+  siti/body, sensori, contatti, ecc.)
+- `env.sim.arm_qpos`, `env.sim.arm_qvel`, `env.sim.gripper_qpos` — stato
+  proprioceptivo gia' estratto
+- `env._elapsed_steps` — passo corrente nell'episodio, utile per reward
+  time-dependent
+
+Due modi per collegarla:
+
+```python
+# 1) al costruttore (consigliato — gym.make() inoltra i kwargs extra
+#    all'entry_point registrato in __init__.py)
+env = gym.make("SharedworkCell-v0", reward_fn=la_tua_reward_fn)
+
+# 2) su un env gia' creato (nota: .unwrapped, perche' gym.make() avvolge
+#    l'env in TimeLimit/OrderEnforcing e l'attributo va sull'istanza vera)
+env.unwrapped._reward_fn = la_tua_reward_fn
+```
+
+Esempio minimo (reaching: avvicinare il TCP a un punto fisso), lo stesso
+usato in `examples/train_sac.py`:
+
+```python
+import mujoco
+import numpy as np
+
+def reaching_reward(env) -> float:
+    model, data = env.sim.model, env.sim.data
+    tcp_id = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_SITE, "ur10e_attachment_site")
+    tcp_pos = data.site_xpos[tcp_id]
+    target = np.array([0.3, 0.0, 0.875 + 0.3])  # sopra il tavolo, vedi fixed_parts.xml
+    return -np.linalg.norm(tcp_pos - target)
+```
+
+**Limiti da tenere presente**: `reward_fn` controlla solo la reward, non
+`terminated`/`truncated` — nel codice attuale `terminated` e' sempre
+`False` e `truncated` dipende solo dal numero di step (`max_episode_steps`).
+Se ti serve terminare l'episodio su successo/fallimento (es. task risolto,
+oggetto caduto), devi sottoclassare `SharedworkCellEnv` e sovrascrivere
+`step()`.
+
+Vedi `examples/train_sac.py` per un esempio completo (reward di reaching
+puramente dimostrativa, da sostituire con il tuo task reale).
 
 Validato con `gymnasium.utils.env_checker.check_env` (nessun errore/warning)
 su entrambe le varianti.
