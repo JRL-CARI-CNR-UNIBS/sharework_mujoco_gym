@@ -71,10 +71,14 @@ class SharedworkCellSim:
                 continue
             self.data.qpos[self.model.jnt_qposadr[jid]] = val
 
-        # allineo ctrl al qpos per ogni attuatore a posizione, altrimenti al
-        # primo step il braccio viene tirato verso ctrl=0
+        # allineo ctrl al qpos per ogni attuatore di POSIZIONE (biastype
+        # affine, es. il gripper), altrimenti al primo step il giunto viene
+        # tirato verso ctrl=0. Gli attuatori di COPPIA del braccio (biastype
+        # none) restano invece a ctrl=0: coppia nulla = nessuna azione, la
+        # gravita' e' gia' compensata via gravcomp nel modello.
         for aid in range(self.model.nu):
-            if self.model.actuator_trntype[aid] == mujoco.mjtTrn.mjTRN_JOINT:
+            if (self.model.actuator_trntype[aid] == mujoco.mjtTrn.mjTRN_JOINT
+                    and self.model.actuator_biastype[aid] == mujoco.mjtBias.mjBIAS_AFFINE):
                 jid = self.model.actuator_trnid[aid, 0]
                 self.data.ctrl[aid] = self.data.qpos[self.model.jnt_qposadr[jid]]
 

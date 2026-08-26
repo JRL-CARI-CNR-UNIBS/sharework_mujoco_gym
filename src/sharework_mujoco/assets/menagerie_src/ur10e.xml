@@ -7,23 +7,26 @@
     <default class="ur10e">
       <material specular="0.5" shininess="0.25"/>
       <joint axis="0 1 0" range="-6.28319 6.28319" armature="0.1"/>
-      <position ctrlrange="-6.2831 6.2831"/>
-      <general biastype="affine" ctrlrange="-6.2831 6.2831" gainprm="5000" biasprm="0 -5000 -500"/>
+      <!-- torque actuators: ctrl is applied joint torque directly (gain=1,
+      no position/velocity bias), ctrlrange mirrors forcerange per class.
+      Gravity is compensated separately via body gravcomp (see below), same
+      as the real UR controller's internal gravity comp: the torque you send
+      here (action) must NOT include the gravitational component. -->
+      <general biastype="none" gaintype="fixed" gainprm="1 0 0"/>
       <default class="size4">
         <joint damping="10"/>
-        <general forcerange="-330 330"/>
+        <general forcerange="-330 330" ctrlrange="-330 330"/>
       </default>
       <default class="size3">
         <joint damping="5"/>
-        <general forcerange="-150 150"/>
+        <general forcerange="-150 150" ctrlrange="-150 150"/>
         <default class="size3_limited">
           <joint range="-3.1415 3.1415"/>
-          <general ctrlrange="-3.1415 3.1415"/>
         </default>
       </default>
       <default class="size2">
         <joint damping="2"/>
-        <general forcerange="-56 56"/>
+        <general forcerange="-56 56" ctrlrange="-56 56"/>
       </default>
       <default class="visual">
         <geom type="mesh" contype="0" conaffinity="0" group="2"/>
@@ -72,14 +75,14 @@
       <inertial mass="4.0" pos="0 0 0" diaginertia="0.0061063308908 0.0061063308908 0.01125"/>
       <geom mesh="base_0" material="black" class="visual"/>
       <geom mesh="base_1" material="jointgray" class="visual"/>
-      <body name="shoulder_link" pos="0 0 0.181">
+      <body name="shoulder_link" pos="0 0 0.181" gravcomp="1">
         <inertial pos="0 0 0" mass="7.778" diaginertia="0.0314743 0.0314743 0.0218756"/>
         <joint name="shoulder_pan_joint" class="size4" axis="0 0 1"/>
         <geom mesh="shoulder_0" material="urblue" class="visual"/>
         <geom mesh="shoulder_1" material="black" class="visual"/>
         <geom mesh="shoulder_2" material="jointgray" class="visual"/>
         <geom class="collision" size="0.078 0.08" pos="0 0 -0.05"/>
-        <body name="upper_arm_link" pos="0 0.176 0" quat="1 0 1 0">
+        <body name="upper_arm_link" pos="0 0.176 0" quat="1 0 1 0" gravcomp="1">
           <inertial pos="0 0 0.3065" mass="12.93" diaginertia="0.423074 0.423074 0.0363656"/>
           <joint name="shoulder_lift_joint" class="size4"/>
           <geom mesh="upperarm_0" material="black" class="visual"/>
@@ -88,7 +91,7 @@
           <geom mesh="upperarm_3" material="linkgray" class="visual"/>
           <geom class="collision" pos="0 -0.05 0" quat="1 1 0 0" size="0.078 0.08"/>
           <geom class="collision" size="0.06 0.3" pos="0 0 0.3"/>
-          <body name="forearm_link" pos="0 -0.137 0.613">
+          <body name="forearm_link" pos="0 -0.137 0.613" gravcomp="1">
             <inertial pos="0 0 0.2855" mass="3.87" diaginertia="0.11059 0.11059 0.0108844"/>
             <joint name="elbow_joint" class="size3_limited"/>
             <geom mesh="forearm_0" material="urblue" class="visual"/>
@@ -97,7 +100,7 @@
             <geom mesh="forearm_3" material="linkgray" class="visual"/>
             <geom class="collision" pos="0 0.08 0" quat="1 1 0 0" size="0.058 0.065"/>
             <geom class="collision" size="0.043 0.28" pos="0 0 0.29"/>
-            <body name="wrist_1_link" pos="0 0 0.571" quat="1 0 1 0">
+            <body name="wrist_1_link" pos="0 0 0.571" quat="1 0 1 0" gravcomp="1">
               <inertial pos="0 0.135 0" quat="0.5 0.5 -0.5 0.5" mass="1.96"
                 diaginertia="0.0055125 0.00510825 0.00510825"/>
               <joint name="wrist_1_joint" class="size2"/>
@@ -105,7 +108,7 @@
               <geom mesh="wrist1_1" material="urblue" class="visual"/>
               <geom mesh="wrist1_2" material="jointgray" class="visual"/>
               <geom class="collision" pos="0 0.06 0" quat="1 1 0 0" size="0.05 0.07"/>
-              <body name="wrist_2_link" pos="0 0.135 0">
+              <body name="wrist_2_link" pos="0 0.135 0" gravcomp="1">
                 <inertial pos="0 0 0.12" quat="0.5 0.5 -0.5 0.5" mass="1.96"
                   diaginertia="0.0055125 0.00510825 0.00510825"/>
                 <joint name="wrist_2_joint" axis="0 0 1" class="size2"/>
@@ -114,7 +117,7 @@
                 <geom mesh="wrist2_2" material="jointgray" class="visual"/>
                 <geom class="collision" size="0.046 0.065" pos="0 0 0.05"/>
                 <geom class="collision" pos="0 0.028 0.12" quat="1 1 0 0" size="0.046 0.043"/>
-                <body name="wrist_3_link" pos="0 0 0.12">
+                <body name="wrist_3_link" pos="0 0 0.12" gravcomp="1">
                   <inertial pos="0 0.092 0" quat="0 1 -1 0" mass="0.202"
                     diaginertia="0.000204525 0.000144346 0.000144346"/>
                   <joint name="wrist_3_joint" class="size2"/>
@@ -140,6 +143,6 @@
   </actuator>
 
   <keyframe>
-    <key name="home" qpos="-1.5708 -1.5708 1.5708 -1.5708 -1.5708 0" ctrl="-1.5708 -1.5708 1.5708 -1.5708 -1.5708 0"/>
+    <key name="home" qpos="-1.5708 -1.5708 1.5708 -1.5708 -1.5708 0" ctrl="0 0 0 0 0 0"/>
   </keyframe>
 </mujoco>
